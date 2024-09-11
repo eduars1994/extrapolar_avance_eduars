@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrapolar Bins Metodo complejo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="button"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            white-space: pre-wrap; /* Permite mantener el formato en blanco */
+        }
+        .group {
+            margin-bottom: 10px;
+        }
+        .comparison {
+            font-family: monospace; /* Mantiene la alineación de caracteres */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Extrapolar Bins Metodo complejo</h2>
+        <form id="calcForm">
+            <label for="num1">Número 1:</label>
+            <input type="text" id="num1" name="num1" maxlength="16" pattern="\d{16}" required>
+            <label for="num2">Número 2:</label>
+            <input type="text" id="num2" name="num2" maxlength="16" pattern="\d{16}" required>
+            <input type="button" value="Realizar Operación" onclick="performOperation()">
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function performOperation() {
+            // Obtén los valores de los campos de entrada
+            const num1 = document.getElementById('num1').value;
+            const num2 = document.getElementById('num2').value;
+
+            // Valida que ambos números sean de 16 dígitos
+            if (num1.length !== 16 || num2.length !== 16) {
+                document.getElementById('result').textContent = 'Ambos números deben tener 16 dígitos.';
+                return;
+            }
+
+            // Extrae los primeros y segundos 8 dígitos de ambos números
+            const first8Num1 = num1.slice(0, 8);
+            const second8Num1 = num1.slice(8, 16);
+            const first8Num2 = num2.slice(0, 8);
+            const second8Num2 = num2.slice(8, 16);
+
+            // Muestra los grupos extraídos
+            let output = `<div class="group">Número 1 (primer grupo): ${first8Num1}</div>` +
+                         `<div class="group">Número 1 (segundo grupo): ${second8Num1}</div>` +
+                         `<div class="group">Número 2 (primer grupo): ${first8Num2}</div>` +
+                         `<div class="group">Número 2 (segundo grupo): ${second8Num2}</div>`;
+
+            // Multiplica cada dígito del primer grupo del número 2 por el dígito correspondiente del segundo grupo del número 2
+            let multiplicationResults = '';
+            for (let i = 0; i < 8; i++) {
+                const digitFirstGroup = parseInt(first8Num2[i], 10);
+                const digitSecondGroup = parseInt(second8Num2[i], 10);
+                const result = digitFirstGroup * digitSecondGroup;
+                multiplicationResults += result.toString();
+                output += `<div class="group">Multiplicación del dígito ${i+1}: ${digitFirstGroup} x ${digitSecondGroup} = ${result}</div>`;
+            }
+
+            // Toma solo los primeros 8 dígitos del resultado
+            const truncatedResults = multiplicationResults.slice(0, 8);
+
+            // Junta los primeros 8 dígitos del número 2 con el resultado truncado
+            const finalResult = first8Num2 + truncatedResults;
+
+            // Divide el resultado final combinado en dos grupos de 8 dígitos
+            const finalResultGroup1 = finalResult.slice(0, 8);
+            const finalResultGroup2 = finalResult.slice(8, 16);
+
+            // Compara el segundo grupo del número 1 y el segundo grupo del resultado final combinado
+            let comparisonResult = '';
+            const secondGroupNum1 = second8Num1.split('');
+            const secondGroupFinalResult = finalResultGroup2.split('');
+
+            for (let i = 0; i < 8; i++) {
+                comparisonResult += (secondGroupNum1[i] === secondGroupFinalResult[i]) ? secondGroupNum1[i] : 'X';
+            }
+
+            // Reemplaza el último dígito por '1' si es una 'X'
+            if (comparisonResult[7] === 'X') {
+                comparisonResult = comparisonResult.slice(0, 7) + '1';
+            }
+
+            // Junta el primer grupo del número 1 con el resultado final ajustado
+            const combinedResult = first8Num1 + comparisonResult;
+
+            // Muestra los resultados finales
+            output += `<div class="group">Resultados de la multiplicación (8 dígitos truncados): ${truncatedResults}</div>` +
+                      `<div class="group">Resultado final combinado (primer grupo): ${finalResultGroup1}</div>` +
+                      `<div class="group">Resultado final combinado (segundo grupo): ${finalResultGroup2}</div>` +
+                      `<div class="group">Número 1 (segundo grupo): ${second8Num1}</div>` +
+                      `<div class="group">Resultado final combinado (segundo grupo): ${finalResultGroup2}</div>` +
+                      `<div class="group comparison">Comparación de los segundos grupos: ${comparisonResult}</div>` +
+                      `<div class="group">Resultado final combinado con primer grupo del número 1: ${combinedResult}</div>`;
+
+            document.getElementById('result').innerHTML = output;
+        }
+    </script>
+</body>
+</html>
